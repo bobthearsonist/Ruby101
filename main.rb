@@ -18,7 +18,22 @@ get '/configuration' do
     configurations = Configuration.send(filter, params[filter]) if params[filter]
   end
 
-  configurations.to_json
+  configurations.map{|configuration|ConfigurationSerializer.new(configuration)}.to_json
+end
+
+class ConfigurationSerializer
+  def initialize(configuration)
+    @configuration = configuration
+  end
+
+  def as_json(*)
+    data = {
+      provider:@configuration.providerid,
+      headers:@configuration.headers
+    }
+    data[:errors]=@configuration.errors if@configuration.errors.any?
+    data
+  end
 end
 
 class Configuration
