@@ -7,8 +7,18 @@ get '/health' do
   true
 end
 
-get '/configuration' do
+get '/configurations' do
   Configuration.all.to_json
+end
+
+get '/configuration' do
+  configurations = Configuration.all
+
+  [:providerid].each do |filter|
+    configurations = Configuration.send(filter, params[filter]) if params[filter]
+  end
+
+  configurations.to_json
 end
 
 class Configuration
@@ -20,4 +30,6 @@ class Configuration
   validates :headers, presence: true
 
   index({ providerid: 1}, {unique: true, name: "proder_index"})
+
+  scope :providerid, -> (providerid) { where(providerid: providerid) }
 end
