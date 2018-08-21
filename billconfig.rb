@@ -1,10 +1,23 @@
 require 'sinatra'
+require 'mongoid'
+
+Mongoid.load! "mongoid.config"
+
+get '/health' do
+  true
+end
+
 get '/configuration' do
-  configuration = Configuration. new(["address","name","balance"])
+  Configuration.all.to_json
 end
 
 class Configuration
-  def initialize(headers)
-    @headers = headers
-  end
+  include Mongoid::Document
+
+  field :providerid, type: String
+  field :headers, type: String
+  validates :providerid, presence: true
+  validates :headers, presence: true
+
+  index({ providerid: 1}, {unique: true, name: "proder_index"})
 end
