@@ -3,15 +3,21 @@ require 'mongoid'
 
 Mongoid.load! "mongoid.config"
 
+get '/health' do
+  true
+end
+
 get '/configuration' do
-  configuration = Configuration. new(["address","name","balance"])
+  Configuration.all.to_json
 end
 
 class Configuration
   include Mongoid::Document
 
+  field :providerid, type: String
   field :headers, type: String
+  validates :providerid, presence: true
   validates :headers, presence: true
 
-  index({ headers: 'text' })
+  index({ providerid: 1}, {unique: true, name: "proder_index"})
 end
